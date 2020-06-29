@@ -1,22 +1,43 @@
-import React from "react";
+import React, {Component} from "react";
 import './todo-list-item.css'
 
-const TodoListItem = ({label, important = false}) => {
-  const style = {
-    color: important ? 'steelblue' : 'black',
-    fontWeight: important ? 'bold' : 'normal'
-  };
+class TodoListItem extends Component {
+  constructor(props) {
+    super(props);
 
-  return (
-    <span className="todo-list-item">
+    this.state = {
+      done: false,
+      important: false
+    };
+
+    this.onLabelClick = () => {
+      this.setState({
+        done: true
+      });
+    };
+
+    this.onMarkImportant = () => {
+      this.setState({
+        important: true
+      });
+    };
+  }
+
+  render() {
+    const {label} = this.props;
+    const {done, important} = this.state;
+
+    return (
+      <span className={`todo-list-item ${done ? 'done' : ''} ${important ? 'important' : ''}`}>
       <span
-        style={style}
-        className="todo-list-item-label">
+        className="todo-list-item-label"
+        onClick={this.onLabelClick}>
         {label}
       </span>
 
       <button type="button"
-              className="btn btn-outline-success btn-sm float-right">
+              className="btn btn-outline-success btn-sm float-right"
+              onClick={this.onMarkImportant}>
         <i className="fa fa-exclamation" />
       </button>
 
@@ -25,9 +46,8 @@ const TodoListItem = ({label, important = false}) => {
         <i className="fa fa-trash-o" />
       </button>
     </span>
-
-
-  )
-};
+    )
+  }
+}
 
 export default TodoListItem;
