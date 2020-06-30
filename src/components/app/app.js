@@ -15,9 +15,9 @@ class App extends Component {
 
     this.state = {
       todoData: [
-        {label: 'Drink Coffee', important: false, id: 1},
-        {label: 'Make Awesome App', important: true, id: 2},
-        {label: 'Have a lunch', important: false, id: 3},
+        this._createTodoItem('Drink Coffee'),
+        this._createTodoItem('Make Awesome App'),
+        this._createTodoItem('Have a lunch')
       ]
     };
 
@@ -28,23 +28,53 @@ class App extends Component {
     };
 
     this.addItem = (text) => {
-      const newItem = {
-        label: text,
-        important: false,
-        id: this.maxId++
-      };
-
       this.setState(({todoData}) => ({
-        todoData: [...todoData, newItem]
+        todoData: [...todoData, this._createTodoItem(text)]
       }));
-    }
+    };
+
+    this.onToggleImportant = (id) => {
+      this.setState(({todoData}) => ({
+        todoData: this._toggleProperty(todoData, id, 'important')
+      }));
+    };
+
+    this.onToggleDone = (id) => {
+      this.setState(({todoData}) => ({
+        todoData: this._toggleProperty(todoData, id, 'done')
+      }));
+    };
   }
+
+  _createTodoItem(label) {
+    return {
+      label: label,
+      important: false,
+      done: false,
+      id: this.maxId++
+    };
+  }
+
+  _toggleProperty(arr, id, propName) {
+    const oldItemIndex = arr.findIndex((todo) => todo.id === id);
+    const oldItem = arr[oldItemIndex];
+    const newItem = {...oldItem, [propName]: !oldItem[propName]};
+
+    return [
+      ...arr.slice(0, oldItemIndex),
+      newItem,
+      ...arr.slice(oldItemIndex + 1)
+    ];
+  }
+
   render() {
     const {todoData} = this.state;
+    const doneCount = todoData.filter((todo) => todo.done).length;
+    const todoCount = todoData.length - doneCount;
 
     return (
       <div className="todo-app">
-        <AppHeader toDo={1} done={3} />
+        <AppHeader toDo={todoCount} done={doneCount} />
         <div className="top-panel d-flex">
           <SearchPanel />
           <ItemStatusFilter />
@@ -53,6 +83,8 @@ class App extends Component {
         <TodoList
           todos={todoData}
           onDeleted={this.deleteItem}
+          onToggleImportant={this.onToggleImportant}
+          onToggleDone={this.onToggleDone}
         />
 
         <ItemAddFrom
