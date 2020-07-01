@@ -19,7 +19,8 @@ class App extends Component {
         this._createTodoItem('Make Awesome App'),
         this._createTodoItem('Have a lunch')
       ],
-      term: ''
+      term: '',
+      selectedFilter: 'all'
     };
 
     this.deleteItem = (id) => {
@@ -48,7 +49,11 @@ class App extends Component {
 
     this.onSearchChange = (term) => {
       this.setState({term});
-    }
+    };
+
+    this.onFilterChange = (selectedFilter) => {
+      this.setState({selectedFilter});
+    };
   }
 
   _createTodoItem(label) {
@@ -80,12 +85,25 @@ class App extends Component {
     return items.filter((item) => item.label.toLowerCase().indexOf(term.toLowerCase()) > -1);
   }
 
+  _filter(items, filter) {
+    switch (filter) {
+      case 'all':
+        return items;
+      case 'active':
+        return items.filter((item) => !item.done);
+      case 'done':
+        return items.filter((item) => item.done);
+      default:
+        throw new Error(`Unhandled filter type ${filter}`);
+    }
+  }
+
   render() {
-    const {todoData, term} = this.state;
+    const {todoData, term, selectedFilter} = this.state;
     const doneCount = todoData.filter((todo) => todo.done).length;
     const todoCount = todoData.length - doneCount;
 
-    const visibleItems = this._search(todoData, term);
+    const visibleItems = this._filter(this._search(todoData, term), selectedFilter);
 
     return (
       <div className="todo-app">
@@ -93,7 +111,9 @@ class App extends Component {
         <div className="top-panel d-flex">
           <SearchPanel
             onSearchChange={this.onSearchChange}/>
-          <ItemStatusFilter />
+          <ItemStatusFilter
+            onFilterChange={this.onFilterChange}
+            selectedFilter={selectedFilter}/>
         </div>
 
         <TodoList
